@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue - JR LOCATION</title>
+    <link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+
+    <header>
+        <ul class="menu">
+            <li><a href="catalogue.html" class="active">CATALOGUE VÉHICULES</a></li>
+            <li><a href="contact.html">CONTACT</a></li>
+            <li><a href="apropos.html">A PROPOS</a></li>
+        </ul>
+        <div class="logo">
+            <h1>JR<br>LOCATION</h1>
+        </div>
+    </header>
+
+    <section class="offre-speciale">
+        <h2 class="titre-offre"> NOS OFFRES SPECIALES</h2>
+        <div class="ligne-separation"></div>
+    </section>
+
+    <main class="catalogue-container">
+        
+        <div class="ligne-voitures">
+            <div class="carte-voiture">
+                <img src="Capture d’écran 2026-03-15 203657.jpg" alt="Range Rover Sport" onerror="this.src='https://via.placeholder.com/300x200?text=Range+Rover'">
+                <div class="infos">
+                    <h3>Land Rover Range Rover Sport Black edition</h3>
+                    <p class="prix"><strong>500€</strong> par jour</p>
+                    <p class="caution">Caution : 74€</p>
+                </div>
+            </div>
+
+            <div class="carte-voiture">
+                <img src="Capture d’écran 2026-03-15 203727.jpg" alt="Range Rover Sport" onerror="this.src='https://via.placeholder.com/300x200?text=Range+Rover'">
+                <div class="infos">
+                    <h3>Land Rover Range Rover Sport Black edition</h3>
+                    <p class="prix"><strong>550€</strong> par jour</p>
+                    <p class="caution">Caution : 79€</p>
+                </div>
+            </div>
+
+            <div class="carte-voiture">
+                <img src="Capture d’écran 2026-03-15 203746.jpg" alt="Range Rover Sport" onerror="this.src='https://via.placeholder.com/300x200?text=Range+Rover'">
+                <div class="infos">
+                    <h3>Land Rover Range Rover Sport Black edition</h3>
+                    <p class="prix"><strong>510€</strong> par jour</p>
+                    <p class="caution">Caution : 76€</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="ligne-voitures">
+            <div class="carte-voiture">
+                <img src="Capture d’écran 2026-03-15 212425.jpg" alt="Dodge Charger" onerror="this.src='https://via.placeholder.com/300x200?text=Dodge+Charger'">
+                <div class="infos">
+                    <h3>Dodge Charger GT</h3>
+                    <p class="prix"><strong>600€</strong> par jour</p>
+                </div>
+            </div>
+
+            <div class="carte-voiture">
+                <img src="Capture d’écran 2026-03-15 212446.jpg" alt="Mercedes Maybach" onerror="this.src='https://via.placeholder.com/300x200?text=Mercedes+Maybach'">
+                <div class="infos">
+                    <h3>Mercedes Maybach S680</h3>
+                    <p class="prix"><strong>725€</strong> par jour</p>
+                </div>
+            </div>
+
+            <div class="carte-voiture">
+                <img src="Capture d’écran 2026-03-15 212501.jpg" alt="BMW 225" onerror="this.src='https://via.placeholder.com/300x200?text=BMW+225'">
+                <div class="infos">
+                    <h3>BMW 225</h3>
+                    <p class="prix"><strong>650€</strong> par jour</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="ligne-voitures">
+            <div class="carte-voiture">
+                <img src="Capture d’écran 2026-03-15 212520.jpg" alt="Range Rover Velar" onerror="this.src='https://via.placeholder.com/300x200?text=Range+Rover+Velar'">
+                <div class="infos">
+                    <h3>Land Rover Range Rover Velar</h3>
+                    <p class="prix"><strong>600€</strong> par jour</p>
+                </div>
+            </div>
+
+            <div class="carte-voiture">
+                <img src="Capture d’écran 2026-03-15 212535.jpg" alt="Mercedes CLA" onerror="this.src='https://via.placeholder.com/300x200?text=Mercedes+CLA'">
+                <div class="infos">
+                    <h3>Mercedes-Benz CLA 200 AMG</h3>
+                    <p class="prix"><strong>625€</strong> par jour</p>
+                </div>
+            </div>
+
+            <div class="carte-voiture">
+                <img src="Capture d’écran 2026-03-15 212549.jpg" alt="Maserati Grecale" onerror="this.src='https://via.placeholder.com/300x200?text=Maserati+Grecale'">
+                <div class="infos">
+                    <h3>Maserati Grecale GT Hybrid</h3>
+                    <p class="prix"><strong>575€</strong> par jour</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="retour">
+        <a href="loc.html" class="btn-retour">← Retour à l'accueil</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 JR LOCATION - Tous droits réservés</p>
+    </footer>
+
+    <script src="catalogue.js"></script>
+</body>
+</html>
