@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À Propos | JR LOCATION</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --noir: #0a0a0a;
+            --blanc: #f8f6f2;
+            --rouge: #c8102e;
+            --rouge-sombre: #9b0a20;
+            --or: #c9a94e;
+            --or-clair: #dfc87a;
+            --gris: #888;
+            --gris-clair: #bbb;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--noir);
+            color: var(--blanc);
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        header {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            padding: 0 60px; height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(10, 10, 10, 0.97);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(201, 169, 78, 0.1);
+        }
+
+        .nav-brand {
+            display: flex; align-items: baseline; gap: 6px; text-decoration: none;
+        }
+        .nav-brand .jr {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px; font-weight: 900; color: var(--blanc); letter-spacing: 2px;
+        }
+        .nav-brand .location {
+            font-size: 10px; font-weight: 600; letter-spacing: 5px;
+            text-transform: uppercase; color: var(--or);
+        }
+
+        nav ul {
+            display: flex; list-style: none; gap: 40px; align-items: center;
+        }
+        nav a {
+            color: var(--blanc); text-decoration: none;
+            font-size: 12px; font-weight: 600; letter-spacing: 2.5px;
+            text-transform: uppercase; padding: 8px 0;
+            transition: color 0.3s; position: relative;
+        }
+        nav a::after {
+            content: ''; position: absolute; bottom: 0; left: 0;
+            width: 0; height: 1px; background: var(--or);
+            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        nav a:hover { color: var(--or); }
+        nav a:hover::after { width: 100%; }
+        nav a.active { color: var(--or); }
+        nav a.active::after { width: 100%; }
+
+        .menu-toggle {
+            display: none; flex-direction: column; gap: 5px;
+            cursor: pointer; background: none; border: none; z-index: 1100;
+        }
+        .menu-toggle span { width: 24px; height: 2px; background: var(--blanc); transition: 0.3s; }
+
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 36px; background: var(--rouge); color: var(--blanc);
+            font-size: 12px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; border: none; cursor: pointer;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%; background: var(--rouge-sombre);
+            transition: left 0.4s;
+        }
+        .btn-primary:hover::before { left: 0; }
+        .btn-primary span { position: relative; z-index: 1; }
+
+        footer {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 50px 60px 30px;
+        }
+        .footer-top {
+            display: flex; justify-content: space-between;
+            align-items: flex-start; margin-bottom: 40px; gap: 40px; flex-wrap: wrap;
+        }
+        .footer-brand .jr {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px; font-weight: 900; color: var(--blanc); letter-spacing: 2px;
+        }
+        .footer-brand .location {
+            font-size: 9px; font-weight: 600; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--or); display: block; margin-top: 2px;
+        }
+        .footer-brand p { color: var(--gris); font-size: 13px; margin-top: 12px; line-height: 1.6; max-width: 280px; }
+        .footer-links { display: flex; gap: 60px; }
+        .footer-col h4 {
+            font-size: 11px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--or); margin-bottom: 18px;
+        }
+        .footer-col a {
+            display: block; color: var(--gris); text-decoration: none;
+            font-size: 13px; margin-bottom: 10px; transition: color 0.3s;
+        }
+        .footer-col a:hover { color: var(--blanc); }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding-top: 25px; display: flex; justify-content: space-between;
+            align-items: center; font-size: 12px; color: #555;
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 0 24px; }
+            nav ul {
+                position: fixed; top: 0; right: -100%; width: 75%; max-width: 320px;
+                height: 100vh; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px);
+                flex-direction: column; justify-content: center; align-items: center;
+                gap: 30px; transition: right 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+                border-left: 1px solid rgba(201, 169, 78, 0.1);
+            }
+            nav ul.open { right: 0; }
+            .menu-toggle { display: flex; }
+            footer { padding: 30px 24px 20px; }
+            .footer-top { flex-direction: column; }
+            .footer-links { gap: 40px; }
+            .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+        }
+
+
+
+
+        .page-header {
+            padding: 120px 60px 40px; text-align: center;
+        }
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px; font-weight: 900; margin-bottom: 10px;
+        }
+        .page-header h1 .accent { color: var(--or); font-style: italic; }
+        .page-header p { color: var(--gris); font-size: 16px; }
+        .separator { width: 60px; height: 2px; background: var(--rouge); margin: 20px auto 0; }
+
+        .content { max-width: 1100px; margin: 0 auto; padding: 40px 40px 80px; }
+
+        .histoire {
+            display: flex; gap: 50px; margin-bottom: 80px; align-items: center;
+        }
+        .histoire-texte { flex: 1.5; }
+        .histoire-texte h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px; font-weight: 700; margin-bottom: 20px;
+            color: var(--or); border-left: 3px solid var(--or); padding-left: 16px;
+        }
+        .histoire-texte p {
+            color: var(--gris-clair); line-height: 1.8; margin-bottom: 16px; font-size: 15px;
+        }
+        .chiffres-box {
+            flex: 1; background: rgba(201,169,78,0.06); border: 1px solid rgba(201,169,78,0.15);
+            border-radius: 16px; padding: 36px; text-align: center;
+        }
+        .chiffre-item { margin-bottom: 28px; }
+        .chiffre-item:last-child { margin-bottom: 0; }
+        .chiffre-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px; font-weight: 700; color: var(--or);
+        }
+        .chiffre-label { color: var(--blanc); font-size: 14px; margin-top: 4px; }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px; font-weight: 700; text-align: center;
+            margin-bottom: 40px; color: var(--or);
+        }
+
+        .valeurs-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 80px;
+        }
+        .valeur {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px; padding: 30px 20px; text-align: center;
+            transition: all 0.3s;
+        }
+        .valeur:hover {
+            border-color: rgba(201,169,78,0.2); transform: translateY(-4px);
+            background: rgba(201,169,78,0.03);
+        }
+        .valeur .icon { font-size: 40px; margin-bottom: 16px; display: block; }
+        .valeur h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+        .valeur p { color: var(--gris); font-size: 13px; line-height: 1.6; }
+
+        .flotte-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 80px;
+        }
+        .flotte-item {
+            text-align: center; padding: 28px 16px;
+            background: rgba(255,255,255,0.02); border-radius: 12px;
+            transition: all 0.3s;
+        }
+        .flotte-item:hover { background: rgba(201,169,78,0.06); }
+        .flotte-item .cat-icon { font-size: 36px; display: block; margin-bottom: 14px; }
+        .flotte-item h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+        .flotte-item p { color: var(--gris); font-size: 13px; }
+
+        .temoignages-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 80px;
+        }
+        .temoignage {
+            background: rgba(255,255,255,0.03); border-radius: 12px;
+            padding: 28px; border-left: 3px solid var(--or);
+        }
+        .temoignage p { color: var(--gris-clair); font-style: italic; line-height: 1.6; margin-bottom: 16px; font-size: 14px; }
+        .temoignage .auteur { font-weight: 700; font-size: 14px; }
+        .temoignage .role { color: var(--or); font-size: 12px; }
+
+        .cta-section {
+            text-align: center; padding: 50px;
+            background: linear-gradient(135deg, rgba(201,169,78,0.06), rgba(0,0,0,0.3));
+            border-radius: 16px; border: 1px solid rgba(201,169,78,0.1);
+        }
+        .cta-section h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px; font-weight: 700; margin-bottom: 12px;
+        }
+        .cta-section h3 .accent { color: var(--or); font-style: italic; }
+        .cta-section p { color: var(--gris); margin-bottom: 28px; }
+
+        @media (max-width: 900px) {
+            .histoire { flex-direction: column; }
+            .valeurs-grid, .flotte-grid { grid-template-columns: repeat(2, 1fr); }
+            .temoignages-grid { grid-template-columns: 1fr; }
+            .page-header { padding: 110px 24px 30px; }
+            .page-header h1 { font-size: 32px; }
+            .content { padding: 30px 24px 60px; }
+        }
+        @media (max-width: 480px) {
+            .valeurs-grid, .flotte-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="loc.html" class="nav-brand">
+            <span class="jr">JR</span>
+            <span class="location">Location</span>
+        </a>
+        <nav>
+            <ul id="navMenu">
+                <li><a href="catalogue.html" >Catalogue</a></li>
+                <li><a href="contact.html" >Contact</a></li>
+                <li><a href="apropos.html" class="active">À propos</a></li>
+                <li><a href="connexion.html" >Connexion</a></li>
+            </ul>
+        </nav>
+        <button class="menu-toggle" onclick="document.getElementById('navMenu').classList.toggle('open');this.classList.toggle('active')">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
+
+    <section class="page-header">
+        <h1>À <span class="accent">propos</span></h1>
+        <p>Votre partenaire de confiance pour la location de véhicules à Dubaï</p>
+        <div class="separator"></div>
+    </section>
+
+    <main class="content">
+        <div class="histoire">
+            <div class="histoire-texte">
+                <h2>Notre histoire</h2>
+                <p>Fondée en 2015, JR LOCATION s'est imposée comme une référence incontournable dans le domaine de la location de véhicules à Dubaï. Ce qui a commencé comme une petite entreprise familiale est devenu un acteur majeur du secteur.</p>
+                <p>Notre showroom situé à Al Quoz, au cœur du district industriel de Dubaï, nous permet d'offrir un service rapide et accessible à une clientèle variée : particuliers, entreprises, touristes du monde entier.</p>
+                <p>Chez JR LOCATION, nous croyons que chaque trajet mérite un véhicule à la hauteur de vos attentes.</p>
+            </div>
+            <div class="chiffres-box">
+                <div class="chiffre-item">
+                    <div class="chiffre-num">+5000</div>
+                    <div class="chiffre-label">Clients satisfaits</div>
+                </div>
+                <div class="chiffre-item">
+                    <div class="chiffre-num">50+</div>
+                    <div class="chiffre-label">Véhicules disponibles</div>
+                </div>
+                <div class="chiffre-item">
+                    <div class="chiffre-num">7j/7</div>
+                    <div class="chiffre-label">Service dédié</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Nos valeurs</h2>
+        <div class="valeurs-grid">
+            <div class="valeur"><span class="icon">🤝</span><h3>Confiance</h3><p>Transparence et honnêteté. Pas de frais cachés, des contrats clairs.</p></div>
+            <div class="valeur"><span class="icon">⚡</span><h3>Réactivité</h3><p>Une équipe disponible 7j/7 pour vous accompagner à chaque étape.</p></div>
+            <div class="valeur"><span class="icon">🚗</span><h3>Qualité</h3><p>Des véhicules récents, entretenus pour votre sécurité et confort.</p></div>
+            <div class="valeur"><span class="icon">💯</span><h3>Satisfaction</h3><p>Votre avis compte. Nous améliorons constamment notre service.</p></div>
+        </div>
+
+        <h2 class="section-title">Notre flotte</h2>
+        <div class="flotte-grid">
+            <div class="flotte-item"><span class="cat-icon">🚙</span><h4>SUV & 4x4</h4><p>Aventures désert & trajets familiaux</p></div>
+            <div class="flotte-item"><span class="cat-icon">🏎️</span><h4>Sport & Luxe</h4><p>Élégance et performance</p></div>
+            <div class="flotte-item"><span class="cat-icon">🚐</span><h4>Citadines</h4><p>Se déplacer facilement en ville</p></div>
+            <div class="flotte-item"><span class="cat-icon">🚛</span><h4>Utilitaires</h4><p>Besoins professionnels</p></div>
+        </div>
+
+        <h2 class="section-title">Ils nous font confiance</h2>
+        <div class="temoignages-grid">
+            <div class="temoignage">
+                <p>"Service impeccable ! Véhicule propre et récent, accueil chaleureux. Je recommande vivement."</p>
+                <div class="auteur">Sophie Martin</div>
+                <div class="role">Touriste française</div>
+            </div>
+            <div class="temoignage">
+                <p>"JR Location est notre partenaire privilégié pour la flotte d'entreprise. Toujours réactifs."</p>
+                <div class="auteur">Ahmed Al Mansouri</div>
+                <div class="role">Directeur d'entreprise</div>
+            </div>
+            <div class="temoignage">
+                <p>"Des prix compétitifs et un service client à l'écoute. Je loue régulièrement, jamais déçu !"</p>
+                <div class="auteur">Thomas Dubois</div>
+                <div class="role">Expatrié à Dubaï</div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h3>Prêt à prendre <span class="accent">la route</span> ?</h3>
+            <p>Découvrez notre catalogue et trouvez le véhicule qui vous correspond</p>
+            <a href="catalogue.html" class="btn-primary"><span>Voir le catalogue →</span></a>
+        </div>
+    </main>
+
+
+    <footer>
+        <div class="footer-top">
+            <div class="footer-brand">
+                <span class="jr">JR</span>
+                <span class="location">Location</span>
+                <p>Location de véhicules de luxe à Dubaï depuis 2015.</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>Navigation</h4>
+                    <a href="catalogue.html">Catalogue</a>
+                    <a href="apropos.html">À propos</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Compte</h4>
+                    <a href="connexion.html">Connexion</a>
+                    <a href="inscription.html">Inscription</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <a href="tel:+97143772503">+971 4 377 2503</a>
+                    <a>Al Quoz, Dubai, UAE</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 JR LOCATION — Tous droits réservés</span>
+            <span>Showroom 17, 18 &amp; 20 — Al Asayel Street, Al Quoz, Dubai</span>
+        </div>
+    </footer>
+</body>
+</html>
