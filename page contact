@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | JR LOCATION</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --noir: #0a0a0a;
+            --blanc: #f8f6f2;
+            --rouge: #c8102e;
+            --rouge-sombre: #9b0a20;
+            --or: #c9a94e;
+            --or-clair: #dfc87a;
+            --gris: #888;
+            --gris-clair: #bbb;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--noir);
+            color: var(--blanc);
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        header {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            padding: 0 60px; height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(10, 10, 10, 0.97);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(201, 169, 78, 0.1);
+        }
+
+        .nav-brand {
+            display: flex; align-items: baseline; gap: 6px; text-decoration: none;
+        }
+        .nav-brand .jr {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px; font-weight: 900; color: var(--blanc); letter-spacing: 2px;
+        }
+        .nav-brand .location {
+            font-size: 10px; font-weight: 600; letter-spacing: 5px;
+            text-transform: uppercase; color: var(--or);
+        }
+
+        nav ul {
+            display: flex; list-style: none; gap: 40px; align-items: center;
+        }
+        nav a {
+            color: var(--blanc); text-decoration: none;
+            font-size: 12px; font-weight: 600; letter-spacing: 2.5px;
+            text-transform: uppercase; padding: 8px 0;
+            transition: color 0.3s; position: relative;
+        }
+        nav a::after {
+            content: ''; position: absolute; bottom: 0; left: 0;
+            width: 0; height: 1px; background: var(--or);
+            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        nav a:hover { color: var(--or); }
+        nav a:hover::after { width: 100%; }
+        nav a.active { color: var(--or); }
+        nav a.active::after { width: 100%; }
+
+        .menu-toggle {
+            display: none; flex-direction: column; gap: 5px;
+            cursor: pointer; background: none; border: none; z-index: 1100;
+        }
+        .menu-toggle span { width: 24px; height: 2px; background: var(--blanc); transition: 0.3s; }
+
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 36px; background: var(--rouge); color: var(--blanc);
+            font-size: 12px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; border: none; cursor: pointer;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%; background: var(--rouge-sombre);
+            transition: left 0.4s;
+        }
+        .btn-primary:hover::before { left: 0; }
+        .btn-primary span { position: relative; z-index: 1; }
+
+        footer {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 50px 60px 30px;
+        }
+        .footer-top {
+            display: flex; justify-content: space-between;
+            align-items: flex-start; margin-bottom: 40px; gap: 40px; flex-wrap: wrap;
+        }
+        .footer-brand .jr {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px; font-weight: 900; color: var(--blanc); letter-spacing: 2px;
+        }
+        .footer-brand .location {
+            font-size: 9px; font-weight: 600; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--or); display: block; margin-top: 2px;
+        }
+        .footer-brand p { color: var(--gris); font-size: 13px; margin-top: 12px; line-height: 1.6; max-width: 280px; }
+        .footer-links { display: flex; gap: 60px; }
+        .footer-col h4 {
+            font-size: 11px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--or); margin-bottom: 18px;
+        }
+        .footer-col a {
+            display: block; color: var(--gris); text-decoration: none;
+            font-size: 13px; margin-bottom: 10px; transition: color 0.3s;
+        }
+        .footer-col a:hover { color: var(--blanc); }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding-top: 25px; display: flex; justify-content: space-between;
+            align-items: center; font-size: 12px; color: #555;
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 0 24px; }
+            nav ul {
+                position: fixed; top: 0; right: -100%; width: 75%; max-width: 320px;
+                height: 100vh; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px);
+                flex-direction: column; justify-content: center; align-items: center;
+                gap: 30px; transition: right 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+                border-left: 1px solid rgba(201, 169, 78, 0.1);
+            }
+            nav ul.open { right: 0; }
+            .menu-toggle { display: flex; }
+            footer { padding: 30px 24px 20px; }
+            .footer-top { flex-direction: column; }
+            .footer-links { gap: 40px; }
+            .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+        }
+
+
+
+
+        .page-header {
+            padding: 120px 60px 40px; text-align: center;
+        }
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px; font-weight: 900; margin-bottom: 10px;
+        }
+        .page-header h1 .accent { color: var(--or); font-style: italic; }
+        .page-header p { color: var(--gris); font-size: 16px; }
+        .separator { width: 60px; height: 2px; background: var(--rouge); margin: 20px auto 0; }
+
+        .contact-grid {
+            max-width: 1100px; margin: 0 auto;
+            padding: 40px 40px 80px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 50px;
+        }
+
+        .info-block { margin-bottom: 35px; }
+        .info-block h3 {
+            font-size: 14px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--or); margin-bottom: 16px;
+            padding-bottom: 10px; border-bottom: 1px solid rgba(201,169,78,0.15);
+        }
+        .info-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 16px; margin-bottom: 8px;
+            background: rgba(255,255,255,0.03); border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .info-item:hover {
+            background: rgba(201,169,78,0.05); transform: translateX(4px);
+        }
+        .info-item .icon { font-size: 18px; width: 24px; text-align: center; }
+        .info-item a { color: var(--blanc); font-size: 15px; transition: color 0.2s; }
+        .info-item a:hover { color: var(--or); }
+        .info-item span { color: var(--blanc); font-size: 15px; }
+
+        .hours-box {
+            background: rgba(201,169,78,0.06); border-left: 3px solid var(--or);
+            padding: 18px 22px; border-radius: 0 10px 10px 0;
+        }
+        .hours-box .day { color: var(--or); font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+        .hours-box .time { font-size: 20px; font-weight: 700; color: var(--blanc); }
+        .hours-box .detail { color: var(--gris); font-size: 13px; margin-top: 4px; }
+
+        .social-row { display: flex; gap: 12px; margin-top: 8px; }
+        .social-btn {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; transition: all 0.3s; color: var(--blanc);
+        }
+        .social-btn:hover { background: var(--rouge); transform: translateY(-3px); border-color: var(--rouge); }
+
+        .form-section h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px; font-weight: 700; margin-bottom: 8px;
+        }
+        .form-section h3 .accent { color: var(--or); font-style: italic; }
+        .form-section > p { color: var(--gris); font-size: 14px; margin-bottom: 30px; }
+
+        .input-group { margin-bottom: 18px; }
+        .input-group label {
+            display: block; color: var(--gris-clair); margin-bottom: 8px;
+            font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .input-group label .req { color: var(--rouge); }
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%; padding: 14px 18px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px; color: var(--blanc); font-size: 15px;
+            font-family: 'Montserrat', sans-serif; transition: all 0.3s;
+        }
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+            outline: none; border-color: var(--or); background: rgba(201,169,78,0.04);
+        }
+        .input-group input::placeholder, .input-group textarea::placeholder { color: #444; }
+        .input-group select option { background: #111; color: var(--blanc); }
+
+        .btn-submit {
+            width: 100%; padding: 15px; background: var(--rouge); color: var(--blanc);
+            border: none; border-radius: 8px; font-size: 14px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+            transition: all 0.3s; font-family: 'Montserrat', sans-serif;
+        }
+        .btn-submit:hover {
+            background: var(--rouge-sombre); transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(200,16,46,0.3);
+        }
+
+        .form-note {
+            text-align: center; margin-top: 16px; font-size: 12px; color: #555;
+        }
+
+        @media (max-width: 900px) {
+            .contact-grid { grid-template-columns: 1fr; padding: 30px 24px 60px; }
+            .page-header { padding: 110px 24px 30px; }
+            .page-header h1 { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="loc.html" class="nav-brand">
+            <span class="jr">JR</span>
+            <span class="location">Location</span>
+        </a>
+        <nav>
+            <ul id="navMenu">
+                <li><a href="catalogue.html" >Catalogue</a></li>
+                <li><a href="contact.html" class="active">Contact</a></li>
+                <li><a href="apropos.html" >À propos</a></li>
+                <li><a href="connexion.html" >Connexion</a></li>
+            </ul>
+        </nav>
+        <button class="menu-toggle" onclick="document.getElementById('navMenu').classList.toggle('open');this.classList.toggle('active')">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
+
+    <section class="page-header">
+        <h1>Nous <span class="accent">contacter</span></h1>
+        <p>Notre équipe est à votre disposition 7j/7</p>
+        <div class="separator"></div>
+    </section>
+
+    <div class="contact-grid">
+        <div class="info-side">
+            <div class="info-block">
+                <h3>Localisation</h3>
+                <div class="info-item">
+                    <span class="icon">📍</span>
+                    <span>Showroom 17, 18 & 20, Al Asayel Street</span>
+                </div>
+                <div class="info-item">
+                    <span class="icon"></span>
+                    <span>Al Quoz Industrial 1, Dubai, UAE</span>
+                </div>
+            </div>
+
+            <div class="info-block">
+                <h3>Horaires</h3>
+                <div class="hours-box">
+                    <div class="day">Tous les jours</div>
+                    <div class="time">9:30 — 22:00</div>
+                    <div class="detail">Dimanche au Samedi (7j/7)</div>
+                </div>
+            </div>
+
+            <div class="info-block">
+                <h3>Contact direct</h3>
+                <div class="info-item">
+                    <span class="icon">📱</span>
+                    <a href="tel:+97143772503">+971 4 377 2503</a>
+                </div>
+                <div class="info-item">
+                    <span class="icon">✉️</span>
+                    <a href="mailto:contact@jrlocation.ae">contact@jrlocation.ae</a>
+                </div>
+                <div class="info-item">
+                    <span class="icon">💬</span>
+                    <a href="https://wa.me/97143772503" target="_blank">WhatsApp</a>
+                </div>
+            </div>
+
+            <div class="info-block">
+                <h3>Réseaux sociaux</h3>
+                <div class="social-row">
+                    <a href="#" class="social-btn">📷</a>
+                    <a href="#" class="social-btn">📘</a>
+                    <a href="#" class="social-btn">🎵</a>
+                    <a href="#" class="social-btn">🐦</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Envoyez un <span class="accent">message</span></h3>
+            <p>Nous vous répondrons dans les plus brefs délais.</p>
+
+            <form id="contactForm">
+                <div class="input-group">
+                    <label>Nom complet <span class="req">*</span></label>
+                    <input type="text" placeholder="Votre nom" required>
+                </div>
+                <div class="input-group">
+                    <label>Email <span class="req">*</span></label>
+                    <input type="email" placeholder="exemple@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Téléphone</label>
+                    <input type="tel" placeholder="+971 XX XXX XXXX">
+                </div>
+                <div class="input-group">
+                    <label>Sujet <span class="req">*</span></label>
+                    <select required>
+                        <option value="">Sélectionnez un sujet</option>
+                        <option value="location">Demande de location</option>
+                        <option value="devis">Demande de devis</option>
+                        <option value="assistance">Assistance client</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Message <span class="req">*</span></label>
+                    <textarea rows="5" placeholder="Détaillez votre demande..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Envoyer →</button>
+                <div class="form-note">🔒 Vos données restent confidentielles</div>
+            </form>
+        </div>
+    </div>
+
+
+    <footer>
+        <div class="footer-top">
+            <div class="footer-brand">
+                <span class="jr">JR</span>
+                <span class="location">Location</span>
+                <p>Location de véhicules de luxe à Dubaï depuis 2015.</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>Navigation</h4>
+                    <a href="catalogue.html">Catalogue</a>
+                    <a href="apropos.html">À propos</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Compte</h4>
+                    <a href="connexion.html">Connexion</a>
+                    <a href="inscription.html">Inscription</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <a href="tel:+97143772503">+971 4 377 2503</a>
+                    <a>Al Quoz, Dubai, UAE</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 JR LOCATION — Tous droits réservés</span>
+            <span>Showroom 17, 18 &amp; 20 — Al Asayel Street, Al Quoz, Dubai</span>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('✅ Message envoyé ! Notre équipe vous répondra rapidement.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
