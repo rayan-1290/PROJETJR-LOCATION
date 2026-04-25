@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion | JR LOCATION</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --noir: #0a0a0a;
+            --blanc: #f8f6f2;
+            --rouge: #c8102e;
+            --rouge-sombre: #9b0a20;
+            --or: #c9a94e;
+            --or-clair: #dfc87a;
+            --gris: #888;
+            --gris-clair: #bbb;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--noir);
+            color: var(--blanc);
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        header {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            padding: 0 60px; height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(10, 10, 10, 0.97);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(201, 169, 78, 0.1);
+        }
+
+        .nav-brand {
+            display: flex; align-items: baseline; gap: 6px; text-decoration: none;
+        }
+        .nav-brand .jr {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px; font-weight: 900; color: var(--blanc); letter-spacing: 2px;
+        }
+        .nav-brand .location {
+            font-size: 10px; font-weight: 600; letter-spacing: 5px;
+            text-transform: uppercase; color: var(--or);
+        }
+
+        nav ul {
+            display: flex; list-style: none; gap: 40px; align-items: center;
+        }
+        nav a {
+            color: var(--blanc); text-decoration: none;
+            font-size: 12px; font-weight: 600; letter-spacing: 2.5px;
+            text-transform: uppercase; padding: 8px 0;
+            transition: color 0.3s; position: relative;
+        }
+        nav a::after {
+            content: ''; position: absolute; bottom: 0; left: 0;
+            width: 0; height: 1px; background: var(--or);
+            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        nav a:hover { color: var(--or); }
+        nav a:hover::after { width: 100%; }
+        nav a.active { color: var(--or); }
+        nav a.active::after { width: 100%; }
+
+        .menu-toggle {
+            display: none; flex-direction: column; gap: 5px;
+            cursor: pointer; background: none; border: none; z-index: 1100;
+        }
+        .menu-toggle span { width: 24px; height: 2px; background: var(--blanc); transition: 0.3s; }
+
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 36px; background: var(--rouge); color: var(--blanc);
+            font-size: 12px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; border: none; cursor: pointer;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%; background: var(--rouge-sombre);
+            transition: left 0.4s;
+        }
+        .btn-primary:hover::before { left: 0; }
+        .btn-primary span { position: relative; z-index: 1; }
+
+        footer {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 50px 60px 30px;
+        }
+        .footer-top {
+            display: flex; justify-content: space-between;
+            align-items: flex-start; margin-bottom: 40px; gap: 40px; flex-wrap: wrap;
+        }
+        .footer-brand .jr {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px; font-weight: 900; color: var(--blanc); letter-spacing: 2px;
+        }
+        .footer-brand .location {
+            font-size: 9px; font-weight: 600; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--or); display: block; margin-top: 2px;
+        }
+        .footer-brand p { color: var(--gris); font-size: 13px; margin-top: 12px; line-height: 1.6; max-width: 280px; }
+        .footer-links { display: flex; gap: 60px; }
+        .footer-col h4 {
+            font-size: 11px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--or); margin-bottom: 18px;
+        }
+        .footer-col a {
+            display: block; color: var(--gris); text-decoration: none;
+            font-size: 13px; margin-bottom: 10px; transition: color 0.3s;
+        }
+        .footer-col a:hover { color: var(--blanc); }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding-top: 25px; display: flex; justify-content: space-between;
+            align-items: center; font-size: 12px; color: #555;
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 0 24px; }
+            nav ul {
+                position: fixed; top: 0; right: -100%; width: 75%; max-width: 320px;
+                height: 100vh; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px);
+                flex-direction: column; justify-content: center; align-items: center;
+                gap: 30px; transition: right 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+                border-left: 1px solid rgba(201, 169, 78, 0.1);
+            }
+            nav ul.open { right: 0; }
+            .menu-toggle { display: flex; }
+            footer { padding: 30px 24px 20px; }
+            .footer-top { flex-direction: column; }
+            .footer-links { gap: 40px; }
+            .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+        }
+
+
+
+
+        .auth-section {
+            min-height: 100vh; display: flex;
+            align-items: center; justify-content: center;
+            padding: 100px 20px 60px;
+        }
+        .auth-box {
+            max-width: 460px; width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px; padding: 44px;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .auth-header { text-align: center; margin-bottom: 32px; }
+        .auth-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px; font-weight: 900; letter-spacing: 1px;
+        }
+        .auth-header h1 .accent { color: var(--or); }
+        .auth-header p { color: var(--gris); font-size: 14px; margin-top: 8px; }
+
+        .input-group { margin-bottom: 18px; }
+        .input-group label {
+            display: block; color: var(--gris-clair); margin-bottom: 8px;
+            font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .input-group label .req { color: var(--rouge); }
+        .input-group input {
+            width: 100%; padding: 14px 18px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px; color: var(--blanc); font-size: 15px;
+            font-family: 'Montserrat', sans-serif; transition: all 0.3s;
+        }
+        .input-group input:focus {
+            outline: none; border-color: var(--or); background: rgba(201,169,78,0.04);
+        }
+        .input-group input::placeholder { color: #444; }
+
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        .forgot { text-align: right; margin-bottom: 24px; }
+        .forgot a { color: var(--gris); font-size: 12px; transition: color 0.2s; }
+        .forgot a:hover { color: var(--or); }
+
+        .btn-auth {
+            width: 100%; padding: 15px; background: var(--rouge); color: var(--blanc);
+            border: none; border-radius: 8px; font-size: 16px; font-weight: 700;
+            letter-spacing: 1px; cursor: pointer; transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif; margin-bottom: 24px;
+        }
+        .btn-auth:hover {
+            background: var(--rouge-sombre); transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(200,16,46,0.3);
+        }
+
+        .divider {
+            text-align: center; position: relative; margin-bottom: 24px;
+        }
+        .divider::before {
+            content: ''; position: absolute; top: 50%; left: 0; right: 0;
+            height: 1px; background: rgba(255,255,255,0.06);
+        }
+        .divider span {
+            background: var(--noir); padding: 0 16px; position: relative;
+            color: var(--gris); font-size: 13px;
+        }
+
+        .btn-alt {
+            width: 100%; padding: 15px; background: transparent; color: var(--blanc);
+            border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
+            font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif; margin-bottom: 20px;
+        }
+        .btn-alt:hover {
+            border-color: var(--or); background: rgba(201,169,78,0.05);
+        }
+
+        .back-link { text-align: center; }
+        .back-link a { color: var(--gris); font-size: 13px; transition: color 0.2s; }
+        .back-link a:hover { color: var(--or); }
+
+        .error-msg { color: var(--rouge); font-size: 12px; margin-top: 6px; display: none; }
+
+        .conditions {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+        }
+        .conditions input { width: 18px; height: 18px; accent-color: var(--rouge); cursor: pointer; }
+        .conditions label { color: var(--gris); font-size: 12px; cursor: pointer; }
+        .conditions a { color: var(--or); }
+
+        @media (max-width: 600px) {
+            .auth-box { padding: 30px 24px; margin: 0 10px; }
+            .auth-header h1 { font-size: 26px; }
+            .row-2 { grid-template-columns: 1fr; gap: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="loc.html" class="nav-brand">
+            <span class="jr">JR</span>
+            <span class="location">Location</span>
+        </a>
+        <nav>
+            <ul id="navMenu">
+                <li><a href="catalogue.html" >Catalogue</a></li>
+                <li><a href="contact.html" >Contact</a></li>
+                <li><a href="apropos.html" >À propos</a></li>
+                <li><a href="connexion.html" class="active">Connexion</a></li>
+            </ul>
+        </nav>
+        <button class="menu-toggle" onclick="document.getElementById('navMenu').classList.toggle('open');this.classList.toggle('active')">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
+
+    <section class="auth-section">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h1><span class="accent">Connexion</span></h1>
+                <p>Accédez à votre espace personnel</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Email <span class="req">*</span></label>
+                    <input type="email" id="email" placeholder="exemple@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Mot de passe <span class="req">*</span></label>
+                    <input type="password" id="password" placeholder="••••••" required>
+                </div>
+                <div class="forgot"><a href="#">Mot de passe oublié ?</a></div>
+                <button type="submit" class="btn-auth">Se connecter</button>
+            </form>
+
+            <div class="divider"><span>ou</span></div>
+            <button class="btn-alt" onclick="location.href='inscription.html'">Créer un compte</button>
+            <div class="back-link"><a href="loc.html">← Retour à l'accueil</a></div>
+        </div>
+    </section>
+
+
+    <footer>
+        <div class="footer-top">
+            <div class="footer-brand">
+                <span class="jr">JR</span>
+                <span class="location">Location</span>
+                <p>Location de véhicules de luxe à Dubaï depuis 2015.</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>Navigation</h4>
+                    <a href="catalogue.html">Catalogue</a>
+                    <a href="apropos.html">À propos</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Compte</h4>
+                    <a href="connexion.html">Connexion</a>
+                    <a href="inscription.html">Inscription</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <a href="tel:+97143772503">+971 4 377 2503</a>
+                    <a>Al Quoz, Dubai, UAE</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 JR LOCATION — Tous droits réservés</span>
+            <span>Showroom 17, 18 &amp; 20 — Al Asayel Street, Al Quoz, Dubai</span>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const pwd = document.getElementById('password').value.trim();
+            if (!email || !email.includes('@')) { alert('Email invalide.'); return; }
+            if (!pwd) { alert('Mot de passe requis.'); return; }
+            alert('✅ Connexion réussie ! Bienvenue sur JR LOCATION.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
