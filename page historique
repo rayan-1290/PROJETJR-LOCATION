@@ -1,0 +1,245 @@
+<?php
+require_once 'config.php';
+if(!estConnecte()) { header("Location: connexion.php"); exit; }
+
+// Annuler une réservation
+if(isset($_GET['annuler'])) {
+    $rid = intval($_GET['annuler']);
+    $s = $conn->prepare("UPDATE reservations SET statut = 'annulee' WHERE id = ? AND user_id = ? AND statut = 'en_attente'");
+    $s->bind_param("ii", $rid, $_SESSION['user_id']);
+    $s->execute();
+    $s->close();
+    header("Location: historique.php");
+    exit;
+}
+
+// Récupérer les réservations
+$stmt = $conn->prepare("
+    SELECT r.*, v.nom AS vehicule_nom, v.image, v.categorie, v.prix_jour 
+    FROM reservations r 
+    JOIN vehicules v ON r.vehicule_id = v.id 
+    WHERE r.user_id = ? 
+    ORDER BY r.date_reservation DESC
+");
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$resas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+// Stats
+$total = count($resas);
+$confirmees = 0; $en_attente = 0; $depense = 0;
+foreach($resas as $r) {
+    if($r['statut'] === 'confirmee' || $r['statut'] === 'terminee') { $confirmees++; $depense += $r['prix_total']; }
+    if($r['statut'] === 'en_attente') { $en_attente++; }
+}
+
+$labels = ['en_attente'=>'En attente','confirmee'=>'Confirmée','annulee'=>'Annulée','terminee'=>'Terminée'];
+$classes = ['en_attente'=>'badge-attente','confirmee'=>'badge-ok','annulee'=>'badge-annulee','terminee'=>'badge-terminee'];
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Réservations | JR LOCATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --noir: #0a0a0a; --blanc: #f8f6f2; --rouge: #c8102e; --rouge-sombre: #9b0a20; --or: #c9a94e; --gris: #888; --gris-clair: #bbb; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--noir); color: var(--blanc); overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        header { position: fixed; top: 0; width: 100%; z-index: 1000; padding: 0 60px; height: 70px; display: flex; align-items: center; justify-content: space-between; background: rgba(10,10,10,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(201,169,78,0.1); }
+        .nav-brand { display: flex; align-items: baseline; gap: 6px; }
+        .nav-brand .jr { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--blanc); letter-spacing: 2px; }
+        .nav-brand .location { font-size: 10px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase; color: var(--or); }
+        nav ul { display: flex; list-style: none; gap: 30px; align-items: center; }
+        nav a { color: var(--blanc); font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 8px 0; transition: color 0.3s; position: relative; }
+        nav a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px; background: var(--or); transition: width 0.4s; }
+        nav a:hover { color: var(--or); } nav a:hover::after { width: 100%; }
+        nav a.active { color: var(--or); } nav a.active::after { width: 100%; }
+        .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; z-index: 1100; }
+        .menu-toggle span { width: 24px; height: 2px; background: var(--blanc); transition: 0.3s; }
+
+        .page { min-height: 100vh; padding: 110px 40px 80px; max-width: 1100px; margin: 0 auto; }
+        .page-header { text-align: center; margin-bottom: 50px; }
+        .page-header h1 { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 900; margin-bottom: 8px; }
+        .page-header h1 .accent { color: var(--or); font-style: italic; }
+        .page-header p { color: var(--gris); font-size: 15px; }
+        .sep { width: 60px; height: 2px; background: var(--rouge); margin: 18px auto 0; }
+
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 50px; }
+        .stat { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 24px 20px; text-align: center; transition: all 0.3s; }
+        .stat:hover { border-color: rgba(201,169,78,0.2); transform: translateY(-3px); }
+        .stat .num { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: var(--or); margin-bottom: 6px; }
+        .stat .label { font-size: 11px; color: var(--gris); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+        .stat.alert .num { color: var(--rouge); }
+
+        .filtres { display: flex; gap: 8px; margin-bottom: 30px; flex-wrap: wrap; }
+        .filtre-btn { padding: 8px 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; border-radius: 30px; cursor: pointer; transition: all 0.3s; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--gris); font-family: 'Montserrat', sans-serif; }
+        .filtre-btn:hover { border-color: var(--or); color: var(--or); }
+        .filtre-btn.active { background: var(--rouge); border-color: var(--rouge); color: white; }
+
+        .resa-list { display: flex; flex-direction: column; gap: 18px; }
+        .resa-card { display: flex; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; transition: all 0.4s; }
+        .resa-card:hover { border-color: rgba(201,169,78,0.2); transform: translateX(4px); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .resa-img { width: 220px; min-height: 160px; position: relative; overflow: hidden; }
+        .resa-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .resa-card:hover .resa-img img { transform: scale(1.05); }
+        .resa-img .cat { position: absolute; top: 12px; left: 12px; font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; background: rgba(10,10,10,0.7); backdrop-filter: blur(8px); color: var(--or); border: 1px solid rgba(201,169,78,0.2); }
+        .resa-body { flex: 1; padding: 22px 28px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+        .resa-left { flex: 1; }
+        .resa-left h3 { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+        .resa-dates { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--gris-clair); margin-bottom: 8px; }
+        .resa-id { font-size: 11px; color: var(--gris); }
+        .resa-right { text-align: right; min-width: 140px; }
+        .resa-prix { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--rouge); margin-bottom: 6px; }
+        .resa-jours { font-size: 12px; color: var(--gris); margin-bottom: 12px; }
+        .badge { display: inline-block; padding: 5px 16px; border-radius: 30px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        .badge-attente { background: rgba(201,169,78,0.1); color: var(--or); border: 1px solid rgba(201,169,78,0.25); }
+        .badge-ok { background: rgba(46,160,67,0.1); color: #4ade80; border: 1px solid rgba(46,160,67,0.25); }
+        .badge-annulee { background: rgba(200,16,46,0.1); color: #ff6b6b; border: 1px solid rgba(200,16,46,0.25); }
+        .badge-terminee { background: rgba(255,255,255,0.04); color: var(--gris); border: 1px solid rgba(255,255,255,0.08); }
+        .btn-annuler { display: inline-block; margin-top: 10px; font-size: 11px; font-weight: 600; color: var(--gris); padding: 6px 18px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; transition: all 0.3s; }
+        .btn-annuler:hover { color: var(--rouge); border-color: var(--rouge); background: rgba(200,16,46,0.05); }
+
+        .empty { text-align: center; padding: 80px 20px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.08); border-radius: 16px; }
+        .empty-icon { font-size: 50px; margin-bottom: 20px; opacity: 0.3; }
+        .empty p { font-size: 16px; color: var(--gris); margin-bottom: 24px; }
+        .empty a { display: inline-block; padding: 12px 30px; background: var(--rouge); color: white; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border-radius: 8px; transition: all 0.3s; }
+        .empty a:hover { background: var(--rouge-sombre); transform: translateY(-2px); }
+
+        footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 50px 60px 30px; }
+        .footer-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; gap: 40px; flex-wrap: wrap; }
+        .footer-brand .jr { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 900; color: var(--blanc); letter-spacing: 2px; }
+        .footer-brand .location { font-size: 9px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--or); display: block; margin-top: 2px; }
+        .footer-brand p { color: var(--gris); font-size: 13px; margin-top: 12px; line-height: 1.6; max-width: 280px; }
+        .footer-links { display: flex; gap: 60px; }
+        .footer-col h4 { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--or); margin-bottom: 18px; }
+        .footer-col a { display: block; color: var(--gris); font-size: 13px; margin-bottom: 10px; transition: color 0.3s; }
+        .footer-col a:hover { color: var(--blanc); }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 25px; display: flex; justify-content: space-between; font-size: 12px; color: #555; }
+
+        @media (max-width: 768px) {
+            header { padding: 0 20px; }
+            nav ul { position: fixed; top: 0; right: -100%; width: 75%; max-width: 320px; height: 100vh; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px); flex-direction: column; justify-content: center; align-items: center; gap: 24px; transition: right 0.5s; border-left: 1px solid rgba(201,169,78,0.1); }
+            nav ul.open { right: 0; }
+            .menu-toggle { display: flex; }
+            .page { padding: 100px 20px 60px; }
+            .page-header h1 { font-size: 32px; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .resa-card { flex-direction: column; }
+            .resa-img { width: 100%; height: 200px; }
+            .resa-body { flex-direction: column; align-items: flex-start; }
+            .resa-right { text-align: left; }
+            footer { padding: 30px 20px 20px; }
+            .footer-top { flex-direction: column; }
+            .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.php" class="nav-brand"><span class="jr">JR</span><span class="location">Location</span></a>
+        <nav><ul id="navMenu">
+            <li><a href="catalogue.php">Catalogue</a></li>
+            <li><a href="contact.php">Contact</a></li>
+            <li><a href="apropos.php">À propos</a></li>
+            <li><a href="profil.php">Profil</a></li>
+            <li><a href="historique.php" class="active">Réservations</a></li>
+            <?php if(estAdmin()): ?><li><a href="admin.php" style="color:var(--or)">Admin</a></li><?php endif; ?>
+            <li><a href="deconnexion.php" style="color:var(--rouge)">Déconnexion</a></li>
+        </ul></nav>
+        <button class="menu-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')"><span></span><span></span><span></span></button>
+    </header>
+
+    <section class="page">
+        <div class="page-header">
+            <h1>Mes <span class="accent">réservations</span></h1>
+            <p><?= $total ?> réservation<?= $total > 1 ? 's' : '' ?> au total</p>
+            <div class="sep"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat"><div class="num"><?= $total ?></div><div class="label">Total</div></div>
+            <div class="stat"><div class="num"><?= $confirmees ?></div><div class="label">Confirmées</div></div>
+            <div class="stat <?= $en_attente > 0 ? 'alert' : '' ?>"><div class="num"><?= $en_attente ?></div><div class="label">En attente</div></div>
+            <div class="stat"><div class="num"><?= number_format($depense, 0) ?>€</div><div class="label">Dépensé</div></div>
+        </div>
+
+        <?php if($total > 0): ?>
+        <div class="filtres">
+            <button class="filtre-btn active" onclick="filtrer('tous')">Tous</button>
+            <button class="filtre-btn" onclick="filtrer('en_attente')">En attente</button>
+            <button class="filtre-btn" onclick="filtrer('confirmee')">Confirmées</button>
+            <button class="filtre-btn" onclick="filtrer('annulee')">Annulées</button>
+            <button class="filtre-btn" onclick="filtrer('terminee')">Terminées</button>
+        </div>
+        <?php endif; ?>
+
+        <?php if(empty($resas)): ?>
+            <div class="empty">
+                <div class="empty-icon">🚗</div>
+                <p>Vous n'avez pas encore de réservation.</p>
+                <a href="catalogue.php">Parcourir le catalogue →</a>
+            </div>
+        <?php else: ?>
+            <div class="resa-list">
+                <?php foreach($resas as $r):
+                    $nj = (strtotime($r['date_fin']) - strtotime($r['date_debut'])) / 86400;
+                ?>
+                <div class="resa-card" data-statut="<?= $r['statut'] ?>">
+                    <div class="resa-img">
+                        <img src="<?= escape($r['image']) ?>" alt="<?= escape($r['vehicule_nom']) ?>">
+                        <span class="cat"><?= escape($r['categorie']) ?></span>
+                    </div>
+                    <div class="resa-body">
+                        <div class="resa-left">
+                            <h3><?= escape($r['vehicule_nom']) ?></h3>
+                            <div class="resa-dates">
+                                <span>📅</span>
+                                <?= date('d/m/Y', strtotime($r['date_debut'])) ?> → <?= date('d/m/Y', strtotime($r['date_fin'])) ?>
+                            </div>
+                            <div class="resa-id">Réservation #<?= $r['id'] ?> — <?= date('d/m/Y à H:i', strtotime($r['date_reservation'])) ?></div>
+                        </div>
+                        <div class="resa-right">
+                            <div class="resa-prix"><?= number_format($r['prix_total'], 0) ?>€</div>
+                            <div class="resa-jours"><?= $nj ?> jour<?= $nj > 1 ? 's' : '' ?> × <?= $r['prix_jour'] ?>€</div>
+                            <span class="badge <?= $classes[$r['statut']] ?>"><?= $labels[$r['statut']] ?></span>
+                            <?php if($r['statut'] === 'en_attente'): ?>
+                                <br><a href="historique.php?annuler=<?= $r['id'] ?>" class="btn-annuler" onclick="return confirm('Annuler cette réservation ?')">Annuler</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </section>
+
+    <footer>
+        <div class="footer-top">
+            <div class="footer-brand"><span class="jr">JR</span><span class="location">Location</span><p>Location de véhicules de luxe à Dubaï depuis 2015.</p></div>
+            <div class="footer-links">
+                <div class="footer-col"><h4>Navigation</h4><a href="catalogue.php">Catalogue</a><a href="apropos.php">À propos</a><a href="contact.php">Contact</a></div>
+                <div class="footer-col"><h4>Compte</h4><a href="profil.php">Mon profil</a><a href="historique.php">Réservations</a><a href="deconnexion.php">Déconnexion</a></div>
+                <div class="footer-col"><h4>Contact</h4><a href="tel:+97143772503">+971 4 377 2503</a><a>Al Quoz, Dubai, UAE</a></div>
+            </div>
+        </div>
+        <div class="footer-bottom"><span>&copy; 2026 JR LOCATION — Tous droits réservés</span><span>Al Asayel Street, Al Quoz, Dubai</span></div>
+    </footer>
+
+    <script>
+        function filtrer(statut) {
+            document.querySelectorAll('.filtre-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.resa-card').forEach(card => {
+                card.style.display = (statut === 'tous' || card.dataset.statut === statut) ? 'flex' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
