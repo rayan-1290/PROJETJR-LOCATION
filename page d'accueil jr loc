@@ -1,3 +1,10 @@
+<?php 
+require_once 'config.php';
+$titre_page = 'Accueil';
+
+$result = $conn->query("SELECT * FROM vehicules WHERE disponible = 1 LIMIT 3");
+$vedettes = $result->fetch_all(MYSQLI_ASSOC);
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -706,23 +713,7 @@
 </head>
 <body>
 
-    <header id="header">
-        <a href="loc.html" class="nav-brand">
-            <span class="jr">JR</span>
-            <span class="location">Location</span>
-        </a>
-        <nav>
-            <ul id="navMenu">
-                <li><a href="catalogue.html">Catalogue</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li><a href="apropos.html">À propos</a></li>
-                <li><a href="connexion.html">Connexion</a></li>
-            </ul>
-        </nav>
-        <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
-            <span></span><span></span><span></span>
-        </button>
-    </header>
+    <?php require_once 'header.php'; ?>
 
     <section class="hero">
         <div class="hero-bg"></div>
@@ -735,11 +726,11 @@
                 SUV, berlines de luxe et sportives — votre trajet, notre passion.
             </p>
             <div class="hero-cta">
-                <a href="catalogue.html" class="btn-primary">
+                <a href="catalogue.php" class="btn-primary">
                     <span>Voir le catalogue</span>
                     <span class="arrow">→</span>
                 </a>
-                <a href="contact.html" class="btn-secondary">Nous contacter</a>
+                <a href="contact.php" class="btn-secondary">Nous contacter</a>
             </div>
         </div>
         <div class="scroll-indicator">
@@ -770,7 +761,7 @@
     <section class="featured">
         <div class="section-header">
             <h2>Nos véhicules<br><span class="thin">en vedette</span></h2>
-            <a href="catalogue.html">Tout voir →</a>
+            <a href="catalogue.php">Tout voir →</a>
         </div>
         <div class="vehicles-grid">
             <div class="vehicle-card">
@@ -785,7 +776,7 @@
                             <span class="from">À partir de</span>
                             <span class="amount">500€ <span class="per">/ jour</span></span>
                         </div>
-                        <a href="connexion.html" class="vehicle-book">Réserver</a>
+                        <a href="connexion.php" class="vehicle-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -801,7 +792,7 @@
                             <span class="from">À partir de</span>
                             <span class="amount">725€ <span class="per">/ jour</span></span>
                         </div>
-                        <a href="connexion.html" class="vehicle-book">Réserver</a>
+                        <a href="connexion.php" class="vehicle-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -817,7 +808,7 @@
                             <span class="from">À partir de</span>
                             <span class="amount">600€ <span class="per">/ jour</span></span>
                         </div>
-                        <a href="connexion.html" class="vehicle-book">Réserver</a>
+                        <a href="connexion.php" class="vehicle-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -829,44 +820,13 @@
             <h3>Prêt à prendre <span class="accent">la route</span> ?</h3>
             <p>Réservez votre véhicule en quelques clics et profitez de Dubaï avec style.</p>
         </div>
-        <a href="catalogue.html" class="btn-primary">
+        <a href="catalogue.php" class="btn-primary">
             <span>Explorer le catalogue</span>
             <span class="arrow">→</span>
         </a>
     </section>
 
-    <footer>
-        <div class="footer-top">
-            <div class="footer-brand">
-                <span class="jr">JR</span>
-                <span class="location">Location</span>
-                <p>Votre partenaire de confiance pour la location de véhicules de luxe à Dubaï depuis 2015.</p>
-            </div>
-            <div class="footer-links">
-                <div class="footer-col">
-                    <h4>Navigation</h4>
-                    <a href="catalogue.html">Catalogue</a>
-                    <a href="apropos.html">À propos</a>
-                    <a href="contact.html">Contact</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Compte</h4>
-                    <a href="connexion.html">Connexion</a>
-                    <a href="inscription.html">Inscription</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact</h4>
-                    <a href="tel:+97143772503">+971 4 377 2503</a>
-                    <a href="mailto:contact@jrlocation.ae">contact@jrlocation.ae</a>
-                    <a>Al Quoz, Dubai, UAE</a>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <span>&copy; 2026 JR LOCATION — Tous droits réservés</span>
-            <span>Showroom 17, 18 &amp; 20 — Al Asayel Street, Al Quoz, Dubai</span>
-        </div>
-    </footer>
+    <?php require_once 'footer.php'; ?>
 
     <script>
         const header = document.getElementById('header');
