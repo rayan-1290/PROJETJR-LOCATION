@@ -1,3 +1,4 @@
+<?php require_once 'config.php'; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -259,16 +260,16 @@
 <body>
 
     <header>
-        <a href="loc.html" class="nav-brand">
+        <a href="loc.php" class="nav-brand">
             <span class="jr">JR</span>
             <span class="location">Location</span>
         </a>
         <nav>
             <ul id="navMenu">
-                <li><a href="catalogue.html" >Catalogue</a></li>
-                <li><a href="contact.html" >Contact</a></li>
-                <li><a href="apropos.html" class="active">À propos</a></li>
-                <li><a href="connexion.html" >Connexion</a></li>
+                <li><a href="catalogue.php" >Catalogue</a></li>
+                <li><a href="contact.php" >Contact</a></li>
+                <li><a href="apropos.php" class="active">À propos</a></li>
+                <li><a href="connexion.php" >Connexion</a></li>
             </ul>
         </nav>
         <button class="menu-toggle" onclick="document.getElementById('navMenu').classList.toggle('open');this.classList.toggle('active')">
@@ -344,7 +345,7 @@
         <div class="cta-section">
             <h3>Prêt à prendre <span class="accent">la route</span> ?</h3>
             <p>Découvrez notre catalogue et trouvez le véhicule qui vous correspond</p>
-            <a href="catalogue.html" class="btn-primary"><span>Voir le catalogue →</span></a>
+            <a href="catalogue.php" class="btn-primary"><span>Voir le catalogue →</span></a>
         </div>
     </main>
 
@@ -359,14 +360,14 @@
             <div class="footer-links">
                 <div class="footer-col">
                     <h4>Navigation</h4>
-                    <a href="catalogue.html">Catalogue</a>
-                    <a href="apropos.html">À propos</a>
-                    <a href="contact.html">Contact</a>
+                    <a href="catalogue.php">Catalogue</a>
+                    <a href="apropos.php">À propos</a>
+                    <a href="contact.php">Contact</a>
                 </div>
                 <div class="footer-col">
                     <h4>Compte</h4>
-                    <a href="connexion.html">Connexion</a>
-                    <a href="inscription.html">Inscription</a>
+                    <a href="connexion.php">Connexion</a>
+                    <a href="inscription.php">Inscription</a>
                 </div>
                 <div class="footer-col">
                     <h4>Contact</h4>
