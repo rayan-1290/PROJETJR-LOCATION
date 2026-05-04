@@ -1,0 +1,205 @@
+<?php
+require_once 'config.php';
+if(!estConnecte() || !estAdmin()) { header("Location: loc.php"); exit; }
+
+$tu = $conn->query("SELECT COUNT(*) as c FROM utilisateurs")->fetch_assoc()['c'];
+$tr = $conn->query("SELECT COUNT(*) as c FROM reservations")->fetch_assoc()['c'];
+$tv = $conn->query("SELECT COUNT(*) as c FROM vehicules")->fetch_assoc()['c'];
+$ca = $conn->query("SELECT COALESCE(SUM(prix_total),0) as c FROM reservations WHERE statut IN ('confirmee','terminee')")->fetch_assoc()['c'];
+$ea = $conn->query("SELECT COUNT(*) as c FROM reservations WHERE statut='en_attente'")->fetch_assoc()['c'];
+
+if(isset($_GET['action'])) {
+    $id = intval($_GET['id'] ?? 0);
+    switch($_GET['action']) {
+        case 'confirmer': $conn->query("UPDATE reservations SET statut='confirmee' WHERE id=$id"); break;
+        case 'annuler': $conn->query("UPDATE reservations SET statut='annulee' WHERE id=$id"); break;
+        case 'toggle': $conn->query("UPDATE vehicules SET disponible = NOT disponible WHERE id=$id"); break;
+        case 'supprimer': if($id != $_SESSION['user_id']) $conn->query("DELETE FROM utilisateurs WHERE id=$id"); break;
+    }
+    header("Location: admin.php?tab=" . ($_GET['tab'] ?? 'resas')); exit;
+}
+
+$tab = $_GET['tab'] ?? 'resas';
+if($tab === 'resas') $data = $conn->query("SELECT r.*, v.nom AS vnom, u.prenom, u.nom AS unom, u.email FROM reservations r JOIN vehicules v ON r.vehicule_id=v.id JOIN utilisateurs u ON r.user_id=u.id ORDER BY r.date_reservation DESC")->fetch_all(MYSQLI_ASSOC);
+elseif($tab === 'users') $data = $conn->query("SELECT * FROM utilisateurs ORDER BY date_inscription DESC")->fetch_all(MYSQLI_ASSOC);
+else $data = $conn->query("SELECT * FROM vehicules ORDER BY id")->fetch_all(MYSQLI_ASSOC);
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration | JR LOCATION</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); min-height: 100vh; color: #fff; }
+        a { text-decoration: none; color: inherit; }
+
+        header { position: fixed; width: 100%; top: 0; z-index: 1000; background: rgba(0, 0, 0, 0.95); padding: 20px 0; }
+        .menu { display: flex; justify-content: center; align-items: center; list-style: none; padding: 0 50px; margin: 0; gap: 60px; }
+        .menu li { display: inline-block; }
+        .menu a { color: white; text-decoration: none; font-size: 18px; font-weight: bold; letter-spacing: 1px; transition: color 0.3s; padding: 10px 0; }
+        .menu a:hover { color: #ff0000; }
+
+        .admin-section { min-height: 100vh; padding: 100px 5% 80px 5%; }
+        .admin-container { max-width: 1200px; margin: 0 auto; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
+        .admin-header { background: linear-gradient(135deg, #1a1a1a, #0d0d0d); padding: 30px 40px; border-bottom: 1px solid rgba(255,0,0,0.3); text-align: center; }
+        .admin-header h1 { font-size: 32px; }
+        .admin-header h1 span { color: #ff0000; }
+        .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .stat-box { padding: 25px; text-align: center; border-right: 1px solid rgba(255,255,255,0.05); }
+        .stat-box:last-child { border-right: none; }
+        .stat-box .num { font-size: 26px; font-weight: bold; color: #ff0000; }
+        .stat-box .label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+        .stat-box.alert .num { color: #ffd000; }
+        
+        .tabs { display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .tab { flex: 1; padding: 15px; text-align: center; font-size: 14px; font-weight: bold; color: #888; cursor: pointer; transition: all 0.3s; border-bottom: 2px solid transparent; }
+        .tab:hover { color: white; }
+        .tab.active { color: #ff0000; border-bottom-color: #ff0000; background: rgba(255,0,0,0.05); }
+        
+        .admin-content { padding: 30px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px 15px; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #ff0000; border-bottom: 1px solid rgba(255,0,0,0.2); }
+        td { padding: 12px 15px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .b-attente { background: rgba(255,200,0,0.1); color: #ffd000; }
+        .b-confirmee { background: rgba(46,160,67,0.1); color: #4ade80; }
+        .b-annulee { background: rgba(255,0,0,0.1); color: #ff6b6b; }
+        .b-terminee { background: rgba(255,255,255,0.05); color: #888; }
+        .b-admin { background: rgba(255,0,0,0.1); color: #ff0000; }
+        .b-client { background: rgba(255,255,255,0.05); color: #888; }
+        .b-dispo { background: rgba(46,160,67,0.1); color: #4ade80; }
+        .b-indispo { background: rgba(255,0,0,0.1); color: #ff6b6b; }
+        
+        .act-btn { padding: 5px 12px; font-size: 10px; font-weight: bold; border-radius: 4px; margin-right: 4px; display: inline-block; transition: all 0.2s; }
+        .act-ok { color: #4ade80; border: 1px solid rgba(46,160,67,0.3); }
+        .act-ok:hover { background: rgba(46,160,67,0.15); }
+        .act-no { color: #ff6b6b; border: 1px solid rgba(255,0,0,0.3); }
+        .act-no:hover { background: rgba(255,0,0,0.15); }
+        .act-tg { color: #ffd000; border: 1px solid rgba(255,200,0,0.3); }
+        .act-tg:hover { background: rgba(255,200,0,0.1); }
+        
+        @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } .admin-section { padding: 100px 15px 60px; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <ul class="menu">
+            <li><a href="catalogue.php">CATALOGUE VÉHICULES</a></li>
+            <li><a href="contact.php">CONTACT</a></li>
+            <li><a href="apropos.php">A PROPOS</a></li>
+            <?php if(estConnecte()): ?>
+                <li><a href="profil.php">PROFIL</a></li>
+                <li><a href="historique.php">MES RÉSERVATIONS</a></li>
+                <?php if(estAdmin()): ?><li><a href="admin.php" style="color:#ff0000">ADMIN</a></li><?php endif; ?>
+                <li><a href="deconnexion.php">DÉCONNEXION</a></li>
+            <?php else: ?>
+                <li><a href="connexion.php">CONNEXION</a></li>
+            <?php endif; ?>
+        </ul>
+    </header>
+
+
+    <section class="admin-section">
+        <div class="admin-container">
+            <div class="admin-header"><h1>Dashboard <span>Admin</span></h1></div>
+
+            <div class="stats-row">
+                <div class="stat-box"><div class="num"><?= $tu ?></div><div class="label">Utilisateurs</div></div>
+                <div class="stat-box"><div class="num"><?= $tr ?></div><div class="label">Réservations</div></div>
+                <div class="stat-box"><div class="num"><?= $tv ?></div><div class="label">Véhicules</div></div>
+                <div class="stat-box"><div class="num"><?= number_format($ca,0) ?>€</div><div class="label">Chiffre d'affaire</div></div>
+                <div class="stat-box <?= $ea > 0 ? 'alert' : '' ?>"><div class="num"><?= $ea ?></div><div class="label">En attente</div></div>
+            </div>
+
+            <div class="tabs">
+                <a href="admin.php?tab=resas" class="tab <?= $tab=='resas'?'active':'' ?>">Réservations</a>
+                <a href="admin.php?tab=users" class="tab <?= $tab=='users'?'active':'' ?>">Utilisateurs</a>
+                <a href="admin.php?tab=vehicules" class="tab <?= $tab=='vehicules'?'active':'' ?>">Véhicules</a>
+            </div>
+
+            <div class="admin-content">
+            <?php
+            $sl = ['en_attente'=>'En attente','confirmee'=>'Confirmée','annulee'=>'Annulée','terminee'=>'Terminée'];
+            $sc = ['en_attente'=>'b-attente','confirmee'=>'b-confirmee','annulee'=>'b-annulee','terminee'=>'b-terminee'];
+            
+            if($tab === 'resas'): ?>
+                <table>
+                    <thead><tr><th>ID</th><th>Client</th><th>Véhicule</th><th>Dates</th><th>Prix</th><th>Statut</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    <?php foreach($data as $r): ?>
+                        <tr>
+                            <td>#<?= $r['id'] ?></td>
+                            <td><?= htmlspecialchars($r['prenom'].' '.$r['unom']) ?><br><small style="color:#666"><?= htmlspecialchars($r['email']) ?></small></td>
+                            <td><?= htmlspecialchars($r['vnom']) ?></td>
+                            <td><?= date('d/m', strtotime($r['date_debut'])) ?> → <?= date('d/m/Y', strtotime($r['date_fin'])) ?></td>
+                            <td style="font-weight:bold;color:#ff0000"><?= number_format($r['prix_total'],0) ?>€</td>
+                            <td><span class="badge <?= $sc[$r['statut']] ?>"><?= $sl[$r['statut']] ?></span></td>
+                            <td>
+                                <?php if($r['statut']==='en_attente'): ?>
+                                    <a href="admin.php?action=confirmer&id=<?= $r['id'] ?>&tab=resas" class="act-btn act-ok">✓ Confirmer</a>
+                                    <a href="admin.php?action=annuler&id=<?= $r['id'] ?>&tab=resas" class="act-btn act-no">✕ Refuser</a>
+                                <?php else: ?>—<?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <?php if(empty($data)): ?><tr><td colspan="7" style="text-align:center;color:#666;padding:30px">Aucune réservation</td></tr><?php endif; ?>
+                    </tbody>
+                </table>
+            
+            <?php elseif($tab === 'users'): ?>
+                <table>
+                    <thead><tr><th>ID</th><th>Nom</th><th>Email</th><th>Téléphone</th><th>Rôle</th><th>Inscrit le</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    <?php foreach($data as $u): ?>
+                        <tr>
+                            <td>#<?= $u['id'] ?></td>
+                            <td><?= htmlspecialchars($u['prenom'].' '.$u['nom']) ?></td>
+                            <td><?= htmlspecialchars($u['email']) ?></td>
+                            <td><?= htmlspecialchars($u['telephone'] ?: '—') ?></td>
+                            <td><span class="badge b-<?= $u['role'] ?>"><?= ucfirst($u['role']) ?></span></td>
+                            <td><?= date('d/m/Y', strtotime($u['date_inscription'])) ?></td>
+                            <td>
+                                <?php if($u['id'] != $_SESSION['user_id']): ?>
+                                    <a href="admin.php?action=supprimer&id=<?= $u['id'] ?>&tab=users" class="act-btn act-no" onclick="return confirm('Supprimer ?')">Supprimer</a>
+                                <?php else: ?><span style="color:#666;font-size:11px">Vous</span><?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            
+            <?php else: ?>
+                <table>
+                    <thead><tr><th>ID</th><th>Véhicule</th><th>Catégorie</th><th>Prix/jour</th><th>Caution</th><th>Statut</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    <?php foreach($data as $v): ?>
+                        <tr>
+                            <td>#<?= $v['id'] ?></td>
+                            <td><?= htmlspecialchars($v['nom']) ?></td>
+                            <td><?= htmlspecialchars($v['categorie']) ?></td>
+                            <td style="font-weight:bold"><?= $v['prix_jour'] ?>€</td>
+                            <td><?= $v['caution'] ?>€</td>
+                            <td><span class="badge <?= $v['disponible'] ? 'b-dispo' : 'b-indispo' ?>"><?= $v['disponible'] ? 'Disponible' : 'Indisponible' ?></span></td>
+                            <td><a href="admin.php?action=toggle&id=<?= $v['id'] ?>&tab=vehicules" class="act-btn act-tg"><?= $v['disponible'] ? 'Désactiver' : 'Activer' ?></a></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+            </div>
+        </div>
+    </section>
+
+
+    <footer style="background:rgba(0,0,0,0.8);padding:20px 40px;border-top:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-between;flex-wrap:wrap;gap:15px;font-size:13px;color:#666">
+        <span>&copy; 2026 JR LOCATION - Tous droits réservés</span>
+        <span>Showroom 17, 18 & 20 - Al Asayel Street, Al Quoz, Dubai</span>
+    </footer>
+
+</body>
+</html>
