@@ -1,3 +1,9 @@
+<?php
+require_once 'config.php';
+$titre_page = 'Catalogue';
+$result = $conn->query("SELECT * FROM vehicules ORDER BY id");
+$vehicules = $result->fetch_all(MYSQLI_ASSOC);
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -231,10 +237,10 @@
         </a>
         <nav>
             <ul id="navMenu">
-                <li><a href="catalogue.html" class="active">Catalogue</a></li>
-                <li><a href="contact.html" >Contact</a></li>
-                <li><a href="apropos.html" >À propos</a></li>
-                <li><a href="connexion.html" >Connexion</a></li>
+                <li><a href="catalogue.php" class="active">Catalogue</a></li>
+                <li><a href="contact.php" >Contact</a></li>
+                <li><a href="apropos.php" >À propos</a></li>
+                <li><a href="connexion.php" >Connexion</a></li>
             </ul>
         </nav>
         <button class="menu-toggle" id="menuToggle" onclick="document.getElementById('navMenu').classList.toggle('open');this.classList.toggle('active')">
@@ -263,7 +269,7 @@
                             <div class="amount">500€ <span class="per">/ jour</span></div>
                             <div class="caution">Caution : 74€</div>
                         </div>
-                        <a href="connexion.html" class="car-book">Réserver</a>
+                        <a href="connexion.php" class="car-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -279,7 +285,7 @@
                             <div class="amount">550€ <span class="per">/ jour</span></div>
                             <div class="caution">Caution : 79€</div>
                         </div>
-                        <a href="connexion.html" class="car-book">Réserver</a>
+                        <a href="connexion.php" class="car-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -295,7 +301,7 @@
                             <div class="amount">510€ <span class="per">/ jour</span></div>
                             <div class="caution">Caution : 76€</div>
                         </div>
-                        <a href="connexion.html" class="car-book">Réserver</a>
+                        <a href="connexion.php" class="car-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -311,7 +317,7 @@
                             <div class="amount">600€ <span class="per">/ jour</span></div>
                             <div class="caution">Caution : 85€</div>
                         </div>
-                        <a href="connexion.html" class="car-book">Réserver</a>
+                        <a href="connexion.php" class="car-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -327,7 +333,7 @@
                             <div class="amount">725€ <span class="per">/ jour</span></div>
                             <div class="caution">Caution : 95€</div>
                         </div>
-                        <a href="connexion.html" class="car-book">Réserver</a>
+                        <a href="connexion.php" class="car-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -343,7 +349,7 @@
                             <div class="amount">650€ <span class="per">/ jour</span></div>
                             <div class="caution">Caution : 88€</div>
                         </div>
-                        <a href="connexion.html" class="car-book">Réserver</a>
+                        <a href="connexion.php" class="car-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -359,7 +365,7 @@
                             <div class="amount">600€ <span class="per">/ jour</span></div>
                             <div class="caution">Caution : 82€</div>
                         </div>
-                        <a href="connexion.html" class="car-book">Réserver</a>
+                        <a href="connexion.php" class="car-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -375,7 +381,7 @@
                             <div class="amount">625€ <span class="per">/ jour</span></div>
                             <div class="caution">Caution : 84€</div>
                         </div>
-                        <a href="connexion.html" class="car-book">Réserver</a>
+                        <a href="connexion.php" class="car-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -391,7 +397,7 @@
                             <div class="amount">575€ <span class="per">/ jour</span></div>
                             <div class="caution">Caution : 78€</div>
                         </div>
-                        <a href="connexion.html" class="car-book">Réserver</a>
+                        <a href="connexion.php" class="car-book">Réserver</a>
                     </div>
                 </div>
             </div>
@@ -399,7 +405,7 @@
     </main>
 
     <div class="back-link">
-        <a href="loc.html">← Retour à l'accueil</a>
+        <a href="loc.php">← Retour à l'accueil</a>
     </div>
 
 
@@ -413,14 +419,14 @@
             <div class="footer-links">
                 <div class="footer-col">
                     <h4>Navigation</h4>
-                    <a href="catalogue.html">Catalogue</a>
-                    <a href="apropos.html">À propos</a>
-                    <a href="contact.html">Contact</a>
+                    <a href="catalogue.php">Catalogue</a>
+                    <a href="apropos.php">À propos</a>
+                    <a href="contact.php">Contact</a>
                 </div>
                 <div class="footer-col">
                     <h4>Compte</h4>
-                    <a href="connexion.html">Connexion</a>
-                    <a href="inscription.html">Inscription</a>
+                    <a href="connexion.php">Connexion</a>
+                    <a href="inscription.php">Inscription</a>
                 </div>
                 <div class="footer-col">
                     <h4>Contact</h4>
