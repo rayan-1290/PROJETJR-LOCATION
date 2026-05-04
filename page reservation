@@ -1,0 +1,133 @@
+<?php
+require_once 'config.php';
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+$erreur = '';
+$succes = '';
+
+echo "<!-- DÉBOGAGE : début du script -->\n";
+
+if (!estConnecte()) {
+    echo "<!-- PAS CONNECTÉ, redirection vers connexion.php -->\n";
+    header("Location: connexion.php");
+    exit;
+}
+echo "<!-- Utilisateur connecté, ID = " . ($_SESSION['user_id'] ?? 'non défini') . " -->\n";
+
+$vid = intval($_GET['id'] ?? 0);
+echo "<!-- ID véhicule reçu = $vid -->\n";
+if ($vid === 0) {
+    header("Location: catalogue.php");
+    exit;
+}
+
+$stmt = $conn->prepare("SELECT * FROM vehicules WHERE id = ? AND disponible = 1");
+$stmt->bind_param("i", $vid);
+$stmt->execute();
+$v = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$v) {
+    echo "<!-- Véhicule non trouvé ou indisponible -->\n";
+    header("Location: catalogue.php");
+    exit;
+}
+echo "<!-- Véhicule trouvé : " . $v['nom'] . " -->\n";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    echo "<!-- Formulaire POST reçu -->\n";
+    $d1 = trim($_POST['date_debut'] ?? '');
+    $d2 = trim($_POST['date_fin'] ?? '');
+    echo "<!-- Dates reçues : début = $d1, fin = $d2 -->\n";
+
+    if (empty($d1) || empty($d2)) {
+        $erreur = 'Veuillez sélectionner les dates.';
+        echo "<!-- Erreur : dates vides -->\n";
+    } elseif ($d1 >= $d2) {
+        $erreur = 'La date de fin doit être après le début.';
+        echo "<!-- Erreur : date fin antérieure ou égale -->\n";
+    } elseif ($d1 < date('Y-m-d')) {
+        $erreur = 'Date de début dans le passé.';
+        echo "<!-- Erreur : date début passée -->\n";
+    } else {
+        // Vérifier conflit
+        $check = $conn->prepare("SELECT id FROM reservations 
+                                 WHERE vehicule_id = ? 
+                                 AND statut IN ('en_attente', 'confirmee') 
+                                 AND date_debut < ? 
+                                 AND date_fin > ?");
+        $check->bind_param("iss", $vid, $d2, $d1);
+        $check->execute();
+        $checkResult = $check->get_result();
+        $conflict = $checkResult->num_rows > 0;
+        $check->close();
+        echo "<!-- Conflit détecté ? " . ($conflict ? 'OUI' : 'NON') . " -->\n";
+
+        if ($conflict) {
+            $erreur = 'Véhicule déjà réservé sur cette période.';
+        } else {
+            $debut = new DateTime($d1);
+            $fin   = new DateTime($d2);
+            $nbJours = max(1, $debut->diff($fin)->days);
+            $prixTotal = $nbJours * $v['prix_jour'];
+            echo "<!-- Calcul : $nbJours jours, prix total = $prixTotal € -->\n";
+
+            $insert = $conn->prepare("INSERT INTO reservations (user_id, vehicule_id, date_debut, date_fin, prix_total, statut, date_reservation) 
+                                      VALUES (?, ?, ?, ?, ?, 'en_attente', NOW())");
+            if (!$insert) {
+                $erreur = "Erreur de préparation : " . $conn->error;
+                echo "<!-- Erreur préparation : " . $conn->error . " -->\n";
+            } else {
+                $uid = $_SESSION['user_id'];
+                $insert->bind_param("iissd", $uid, $vid, $d1, $d2, $prixTotal);
+                if ($insert->execute()) {
+                    $succes = "Réservation enregistrée ! $nbJours jour(s) pour " . number_format($prixTotal, 0, ',', ' ') . " €";
+                    echo "<!-- Insertion réussie ! -->\n";
+                } else {
+                    $erreur = "Erreur SQL : " . $insert->error;
+                    echo "<!-- Erreur insertion : " . $insert->error . " -->\n";
+                }
+                $insert->close();
+                if ($insert->execute()) {
+    header("Location: historique.php");
+    exit;
+}
+            }
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Réservation debug</title>
+    <style>body{font-family:monospace;background:#0a0a0a;color:white;padding:2rem;} .debug{background:#222;padding:1rem;margin-bottom:2rem;border-left:4px solid #ff0000;}</style>
+</head>
+<body>
+<div class="debug">
+    <strong>🔍 INFOS DE DÉBOGAGE (vérifie les commentaires HTML)</strong><br>
+    Consultez le code source de la page (Ctrl+U) pour voir les lignes commençant par <code>&lt;!--</code>.
+</div>
+
+<?php if($erreur): ?>
+    <div style="background:#ff000020; border:1px solid red; padding:1rem; margin-bottom:1rem;">❌ <?= htmlspecialchars($erreur) ?></div>
+<?php endif; ?>
+
+<?php if($succes): ?>
+    <div style="background:#00ff0020; border:1px solid green; padding:1rem; margin-bottom:1rem;">✅ <?= htmlspecialchars($succes) ?></div>
+<?php endif; ?>
+
+<!-- Affichage du formulaire si pas de succès -->
+<?php if(!$succes): ?>
+<form method="POST">
+    <label>Date début : <input type="date" name="date_debut" required></label><br>
+    <label>Date fin : <input type="date" name="date_fin" required></label><br>
+    <button type="submit">Réserver</button>
+</form>
+<?php endif; ?>
+
+<p><a href="catalogue.php">← Retour catalogue</a></p>
+</body>
+</html>
