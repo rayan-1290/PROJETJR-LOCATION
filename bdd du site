@@ -1,136 +1,57 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Hôte : 127.0.0.1:3308
--- Généré le : mer. 11 mars 2026 à 11:53
--- Version du serveur : 10.4.32-MariaDB
--- Version de PHP : 8.2.12
+-- =============================================
+-- JR LOCATION — Base de données
+-- =============================================
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+USE jrloc;
 
+DROP TABLE IF EXISTS reservations;
+DROP TABLE IF EXISTS vehicules;
+DROP TABLE IF EXISTS utilisateurs;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+CREATE TABLE utilisateurs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    prenom VARCHAR(50) NOT NULL,
+    nom VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    telephone VARCHAR(20),
+    mdp VARCHAR(255) NOT NULL,
+    role ENUM('client', 'admin') DEFAULT 'client',
+    date_inscription DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
 
---
--- Base de données : `location_voitures`
---
+CREATE TABLE vehicules (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    categorie VARCHAR(30) NOT NULL,
+    prix_jour DECIMAL(10,2) NOT NULL,
+    caution DECIMAL(10,2) NOT NULL,
+    image VARCHAR(255) NOT NULL,
+    disponible TINYINT(1) DEFAULT 1
+) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+CREATE TABLE reservations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    vehicule_id INT NOT NULL,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    prix_total DECIMAL(10,2) NOT NULL,
+    statut ENUM('en_attente', 'confirmee', 'annulee', 'terminee') DEFAULT 'en_attente',
+    date_reservation DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+    FOREIGN KEY (vehicule_id) REFERENCES vehicules(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
---
--- Structure de la table `clients`
---
+INSERT INTO vehicules (nom, categorie, prix_jour, caution, image) VALUES
+('Range Rover Sport Black Edition', 'SUV', 500.00, 74.00, 'images/car1.jpg'),
+('Maserati Levante', 'Luxe', 550.00, 79.00, 'images/car2.jpg'),
+('Chevrolet Traverse', 'SUV', 510.00, 76.00, 'images/car3.jpg'),
+('Dodge Charger GT', 'Sport', 600.00, 85.00, 'images/car4.jpg'),
+('Mercedes Maybach S680', 'Luxe', 725.00, 95.00, 'images/car5.jpg'),
+('BMW 225', 'Berline', 650.00, 88.00, 'images/car6.jpg'),
+('Range Rover Velar', 'SUV', 600.00, 82.00, 'images/car7.jpg'),
+('Mercedes-Benz CLA 200 AMG', 'Sport', 625.00, 84.00, 'images/car8.jpg'),
+('Maserati Grecale GT Hybrid', 'Hybride', 575.00, 78.00, 'images/car9.jpg');
 
-CREATE TABLE `clients` (
-  `id` int(11) NOT NULL,
-  `nom` varchar(50) NOT NULL,
-  `prenom` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `telephone` varchar(20) DEFAULT NULL,
-  `mot_de_passe` varchar(255) NOT NULL,
-  `date_inscription` date DEFAULT curdate()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `reservations`
---
-
-CREATE TABLE `reservations` (
-  `id` int(11) NOT NULL,
-  `client_id` int(11) NOT NULL,
-  `voiture_id` int(11) NOT NULL,
-  `date_debut` date NOT NULL,
-  `date_fin` date NOT NULL,
-  `prix_total` decimal(10,2) NOT NULL,
-  `statut` varchar(20) DEFAULT 'en_attente',
-  `date_reservation` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `voitures`
---
-
-CREATE TABLE `voitures` (
-  `id` int(11) NOT NULL,
-  `marque` varchar(50) NOT NULL,
-  `modele` varchar(50) NOT NULL,
-  `annee` int(11) DEFAULT NULL,
-  `immatriculation` varchar(20) NOT NULL,
-  `prix_journalier` decimal(10,2) NOT NULL,
-  `disponible` tinyint(1) DEFAULT 1,
-  `photo` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Index pour les tables déchargées
---
-
---
--- Index pour la table `clients`
---
-ALTER TABLE `clients`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
--- Index pour la table `reservations`
---
-ALTER TABLE `reservations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `client_id` (`client_id`),
-  ADD KEY `voiture_id` (`voiture_id`);
-
---
--- Index pour la table `voitures`
---
-ALTER TABLE `voitures`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `immatriculation` (`immatriculation`);
-
---
--- AUTO_INCREMENT pour les tables déchargées
---
-
---
--- AUTO_INCREMENT pour la table `clients`
---
-ALTER TABLE `clients`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT pour la table `reservations`
---
-ALTER TABLE `reservations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT pour la table `voitures`
---
-ALTER TABLE `voitures`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- Contraintes pour les tables déchargées
---
-
---
--- Contraintes pour la table `reservations`
---
-ALTER TABLE `reservations`
-  ADD CONSTRAINT `reservations_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`),
-  ADD CONSTRAINT `reservations_ibfk_2` FOREIGN KEY (`voiture_id`) REFERENCES `voitures` (`id`);
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+INSERT INTO utilisateurs (prenom, nom, email, mdp, role) VALUES
+('Admin', 'JR', 'admin@jrlocation.ae', '$2y$10$8K1p/a0dL1LXMIgoEDFrwOfMQkHOF0tqsUhO4eSBVdKhxqFq1RxEi', 'admin');
