@@ -1,3 +1,4 @@
+<?php require_once 'config.php'; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -258,10 +259,10 @@
         </a>
         <nav>
             <ul id="navMenu">
-                <li><a href="catalogue.html" >Catalogue</a></li>
-                <li><a href="contact.html" class="active">Contact</a></li>
-                <li><a href="apropos.html" >À propos</a></li>
-                <li><a href="connexion.html" >Connexion</a></li>
+                <li><a href="catalogue.php" >Catalogue</a></li>
+                <li><a href="contact.php" class="active">Contact</a></li>
+                <li><a href="apropos.php" >À propos</a></li>
+                <li><a href="connexion.php" >Connexion</a></li>
             </ul>
         </nav>
         <button class="menu-toggle" onclick="document.getElementById('navMenu').classList.toggle('open');this.classList.toggle('active')">
@@ -373,14 +374,14 @@
             <div class="footer-links">
                 <div class="footer-col">
                     <h4>Navigation</h4>
-                    <a href="catalogue.html">Catalogue</a>
-                    <a href="apropos.html">À propos</a>
-                    <a href="contact.html">Contact</a>
+                    <a href="catalogue.php">Catalogue</a>
+                    <a href="apropos.php">À propos</a>
+                    <a href="contact.php">Contact</a>
                 </div>
                 <div class="footer-col">
                     <h4>Compte</h4>
-                    <a href="connexion.html">Connexion</a>
-                    <a href="inscription.html">Inscription</a>
+                    <a href="connexion.php">Connexion</a>
+                    <a href="inscription.php">Inscription</a>
                 </div>
                 <div class="footer-col">
                     <h4>Contact</h4>
